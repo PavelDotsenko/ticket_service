@@ -160,6 +160,6 @@ defmodule TS.Repository.Ticket.Db do
   end
 
   defp schema_text() do
-    "id serial PRIMARY KEY, shift_id INT NOT NULL, kkm_id INT NOT NULL, type VARCHAR(50) NOT NULL, number INT NOT NULL, fiscal_mark VARCHAR(255) NOT NULL, total_sum INT NOT NULL, json JSONB NOT NULL, message BYTEA NOT NULL, is_online BOOLEAN NOT NULL DEFAULT true, date_time TIMESTAMP NOT NULL DEFAULT NOW(), date_time_in TIMESTAMP NOT NULL DEFAULT NOW()"
+    "id serial PRIMARY KEY, shift_id INT NOT NULL, kkm_id INT NOT NULL, type VARCHAR(50) NOT NULL, number INT NOT NULL, fiscal_mark VARCHAR(255) NOT NULL, total_sum INT8 NOT NULL, json JSONB NOT NULL, message BYTEA NOT NULL, is_online BOOLEAN NOT NULL DEFAULT true, date_time TIMESTAMP NOT NULL DEFAULT NOW(), date_time_in TIMESTAMP NOT NULL DEFAULT NOW()"
   end
 end
