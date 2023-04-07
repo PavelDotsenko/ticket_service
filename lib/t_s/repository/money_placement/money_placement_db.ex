@@ -5,6 +5,8 @@ defmodule TS.Repository.MoneyPlacement.Db do
   alias Ecto.Schema.Metadata
   import Ecto.Query
 
+  @schema_text "id serial PRIMARY KEY, shift_id INT NOT NULL, kkm_id INT NOT NULL, type VARCHAR(50) NOT NULL, is_online BOOLEAN NOT NULL DEFAULT true, total_sum INT NOT NULL, message BYTEA NOT NULL, date_time TIMESTAMP NOT NULL DEFAULT NOW(), date_time_in TIMESTAMP NOT NULL DEFAULT NOW()"
+
   def create(
         shift_id,
         shift_date_time,
@@ -16,7 +18,7 @@ defmodule TS.Repository.MoneyPlacement.Db do
       ) do
     date = Calendar.strftime(shift_date_time, "20%y_%m")
 
-    TableChecker.check("money_#{date}", schema_text())
+    TableChecker.check("money_#{date}", @schema_text)
 
         Map.put(%MoneyPlacement{}, :__meta__, %Metadata{
           state: :loaded,
@@ -60,7 +62,7 @@ defmodule TS.Repository.MoneyPlacement.Db do
   def get_money_placement_count_for_kkm_id(kkm_id) do
     local_now = NaiveDateTime.local_now()
 
-    dates_range = TableChecker.all_table_dates(local_now, "money_")
+    dates_range = TableChecker.all_table_dates(local_now, "money_", @schema_text)
 
     {withq, depq} =
       Enum.reduce(dates_range, nil, fn
@@ -100,9 +102,5 @@ defmodule TS.Repository.MoneyPlacement.Db do
       end
 
     {withdraw, deposit}
-  end
-
-  defp schema_text() do
-    "id serial PRIMARY KEY, shift_id INT NOT NULL, kkm_id INT NOT NULL, type VARCHAR(50) NOT NULL, is_online BOOLEAN NOT NULL DEFAULT true, total_sum INT8 NOT NULL, message BYTEA NOT NULL, date_time TIMESTAMP NOT NULL DEFAULT NOW(), date_time_in TIMESTAMP NOT NULL DEFAULT NOW()"
   end
 end

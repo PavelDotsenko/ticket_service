@@ -5,10 +5,12 @@ defmodule TS.Repository.Shift.Db do
   alias Ecto.Schema.Metadata
   import Ecto.Query
 
+  @schema_text "id serial PRIMARY KEY, cashbox_id INT NOT NULL, number INT NOT NULL, open_time TIMESTAMP NOT NULL DEFAULT NOW(), close_time TIMESTAMP, is_online BOOLEAN NOT NULL DEFAULT true, start_sums JSONB NOT NULL, end_sums JSONB, state VARCHAR(255) NOT NULL, date_time TIMESTAMP NOT NULL DEFAULT NOW()"
+
   def create(cashbox_id, shift_number, open_time, is_online, start_sum, date_time) do
     date_now = NaiveDateTime.local_now() |> Calendar.strftime("20%y_%m")
 
-    TableChecker.check("shifts_#{date_now}", schema_text())
+    TableChecker.check("shifts_#{date_now}", @schema_text)
 
     Map.put(%Shift{}, :__meta__, %Metadata{
       state: :loaded,
@@ -57,9 +59,9 @@ defmodule TS.Repository.Shift.Db do
   end
 
   def get_last_shift_for_cashbox(cashbox_id) do
-    local_now = NaiveDateTime.local_now()
+    local_now = NaiveDateTime.local_now() |> NaiveDateTime.add(2628000)
 
-    dates_range = TableChecker.all_table_dates(local_now, "shifts_")
+    dates_range = TableChecker.all_table_dates(local_now, "shifts_", @schema_text)
 
     select_query =
       Enum.reduce(dates_range, nil, fn
@@ -74,6 +76,14 @@ defmodule TS.Repository.Shift.Db do
     |> order_by(desc: fragment("open_time"))
     |> limit(1)
     |> Repo.one()
+    |> case do
+      nil -> nil
+      shift -> Map.put(shift, :__meta__, %Metadata{
+        state: :loaded,
+        source: "shifts_#{shift.open_time |> Calendar.strftime("20%y_%m")}",
+        context: nil
+      })
+    end
   end
 
   def get_shift_by_id_and_date(shift_id, date_time) do
@@ -85,7 +95,7 @@ defmodule TS.Repository.Shift.Db do
   def get_all_shift_for_cashbox_id(cashbox_id) do
     local_now = NaiveDateTime.local_now()
 
-    dates_range = TableChecker.all_table_dates(local_now, "shifts_")
+    dates_range = TableChecker.all_table_dates(local_now, "shifts_", @schema_text)
 
     select_query =
       Enum.reduce(dates_range, nil, fn
@@ -99,9 +109,5 @@ defmodule TS.Repository.Shift.Db do
     select_query
     |> order_by(desc: fragment("open_time"))
     |> Repo.all()
-  end
-
-  defp schema_text() do
-    "id serial PRIMARY KEY, cashbox_id INT NOT NULL, number INT NOT NULL, open_time TIMESTAMP NOT NULL DEFAULT NOW(), close_time TIMESTAMP, is_online BOOLEAN NOT NULL DEFAULT true, start_sums JSONB NOT NULL, end_sums JSONB, state VARCHAR(255) NOT NULL, date_time TIMESTAMP NOT NULL DEFAULT NOW()"
   end
 end

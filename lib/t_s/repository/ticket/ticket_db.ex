@@ -5,6 +5,8 @@ defmodule TS.Repository.Ticket.Db do
   alias Ecto.Schema.Metadata
   import Ecto.Query
 
+  @schema_text "id serial PRIMARY KEY, shift_id INT NOT NULL, kkm_id INT NOT NULL, type VARCHAR(50) NOT NULL, number INT NOT NULL, fiscal_mark VARCHAR(255) NOT NULL, total_sum INT NOT NULL, json JSONB NOT NULL, message BYTEA NOT NULL, is_online BOOLEAN NOT NULL DEFAULT true, date_time TIMESTAMP NOT NULL DEFAULT NOW(), date_time_in TIMESTAMP NOT NULL DEFAULT NOW()"
+
   def create(
         shift_id,
         shift_date_time,
@@ -20,7 +22,7 @@ defmodule TS.Repository.Ticket.Db do
       ) do
     date = Calendar.strftime(shift_date_time, "20%y_%m")
 
-    TableChecker.check("tickets_#{date}", schema_text())
+    TableChecker.check("tickets_#{date}", @schema_text)
 
     Map.put(%Ticket{}, :__meta__, %Metadata{
       state: :loaded,
@@ -113,7 +115,7 @@ defmodule TS.Repository.Ticket.Db do
   def get_tickets_count_for_kkm_id(kkm_id) do
     local_now = NaiveDateTime.local_now()
 
-    dates_range = TableChecker.all_table_dates(local_now, "tickets_")
+    dates_range = TableChecker.all_table_dates(local_now, "tickets_", @schema_text)
 
     select_query =
       Enum.reduce(dates_range, nil, fn
@@ -135,7 +137,7 @@ defmodule TS.Repository.Ticket.Db do
   def get_tickets_count_for_kkm_id_and_type(kkm_id, type) do
     local_now = NaiveDateTime.local_now()
 
-    dates_range = TableChecker.all_table_dates(local_now, "tickets_")
+    dates_range = TableChecker.all_table_dates(local_now, "tickets_", @schema_text)
 
     select_query =
       Enum.reduce(dates_range, nil, fn
@@ -157,9 +159,5 @@ defmodule TS.Repository.Ticket.Db do
       [] -> nil
       any -> Enum.count(any)
     end
-  end
-
-  defp schema_text() do
-    "id serial PRIMARY KEY, shift_id INT NOT NULL, kkm_id INT NOT NULL, type VARCHAR(50) NOT NULL, number INT NOT NULL, fiscal_mark VARCHAR(255) NOT NULL, total_sum INT8 NOT NULL, json JSONB NOT NULL, message BYTEA NOT NULL, is_online BOOLEAN NOT NULL DEFAULT true, date_time TIMESTAMP NOT NULL DEFAULT NOW(), date_time_in TIMESTAMP NOT NULL DEFAULT NOW()"
   end
 end
