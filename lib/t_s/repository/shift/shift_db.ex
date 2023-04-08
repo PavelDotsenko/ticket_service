@@ -59,7 +59,7 @@ defmodule TS.Repository.Shift.Db do
   end
 
   def get_last_shift_for_cashbox(cashbox_id) do
-    local_now = NaiveDateTime.local_now() |> NaiveDateTime.add(2628000)
+    local_now = NaiveDateTime.local_now()
 
     dates_range = TableChecker.all_table_dates(local_now, "shifts_", @schema_text)
 
