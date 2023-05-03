@@ -5,7 +5,7 @@ defmodule TS.Repository.MoneyPlacement.Db do
   alias Ecto.Schema.Metadata
   import Ecto.Query
 
-  @schema_text "id serial PRIMARY KEY, shift_id INT NOT NULL, kkm_id INT NOT NULL, type VARCHAR(50) NOT NULL, is_online BOOLEAN NOT NULL DEFAULT true, total_sum INT NOT NULL, message BYTEA NOT NULL, date_time TIMESTAMP NOT NULL DEFAULT NOW(), date_time_in TIMESTAMP NOT NULL DEFAULT NOW()"
+  @schema_text "id serial PRIMARY KEY, shift_id INT NOT NULL, kkm_id INT NOT NULL, type VARCHAR(50) NOT NULL, is_online BOOLEAN NOT NULL DEFAULT true, total_sum BIGINT NOT NULL, message BYTEA NOT NULL, date_time TIMESTAMP NOT NULL DEFAULT NOW(), date_time_in TIMESTAMP NOT NULL DEFAULT NOW()"
 
   def create(
         shift_id,
