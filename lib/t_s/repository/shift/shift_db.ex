@@ -8,7 +8,7 @@ defmodule TS.Repository.Shift.Db do
   @schema_text "id serial PRIMARY KEY, cashbox_id INT NOT NULL, number INT NOT NULL, open_time TIMESTAMP NOT NULL DEFAULT NOW(), close_time TIMESTAMP, is_online BOOLEAN NOT NULL DEFAULT true, start_sums JSONB NOT NULL, end_sums JSONB, state VARCHAR(255) NOT NULL, date_time TIMESTAMP NOT NULL DEFAULT NOW()"
 
   def create(cashbox_id, shift_number, open_time, is_online, start_sum, date_time) do
-    date_now = NaiveDateTime.local_now() |> Calendar.strftime("20%y_%m")
+    date_now = open_time |> Calendar.strftime("20%y_%m")
 
     TableChecker.check("shifts_#{date_now}", @schema_text)
 
