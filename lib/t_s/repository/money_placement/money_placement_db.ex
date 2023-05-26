@@ -48,7 +48,7 @@ defmodule TS.Repository.MoneyPlacement.Db do
     date = Calendar.strftime(date_time, "20%y_%m")
 
     Repo.all(
-      from(m in {"money_#{date}", Shift},
+      from(m in {"money_#{date}", MoneyPlacement},
         where: m.shift_id == ^shift_id,
         order_by: [desc: m.date_time]
       )
@@ -67,21 +67,21 @@ defmodule TS.Repository.MoneyPlacement.Db do
     {withq, depq} =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
-          {from(m in {"money_#{date}", Shift},
+          {from(m in {"money_#{date}", MoneyPlacement},
              where: m.kkm_id == ^kkm_id and m.type == "MONEY_PLACEMENT_WITHDRAWAL"
            ),
-           from(m in {"money_#{date}", Shift},
+           from(m in {"money_#{date}", MoneyPlacement},
              where: m.kkm_id == ^kkm_id and m.type == "MONEY_PLACEMENT_DEPOSIT"
            )}
 
-        date, acc ->
-          {from(m in {"money_#{date}", Shift},
+        date, {w, d} ->
+          {from(m in {"money_#{date}", MoneyPlacement},
              where: m.kkm_id == ^kkm_id and m.type == "MONEY_PLACEMENT_WITHDRAWAL",
-             union_all: ^acc
+             union_all: ^w
            ),
-           from(m in {"money_#{date}", Shift},
+           from(m in {"money_#{date}", MoneyPlacement},
              where: m.kkm_id == ^kkm_id and m.type == "MONEY_PLACEMENT_DEPOSIT",
-             union_all: ^acc
+             union_all: ^d
            )}
       end)
 
