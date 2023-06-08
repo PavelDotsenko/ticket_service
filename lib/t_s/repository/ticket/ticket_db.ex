@@ -61,7 +61,7 @@ defmodule TS.Repository.Ticket.Db do
       )
     )
     |> case do
-      [] -> nil
+      [] -> []
       any -> any
     end
   end
@@ -72,7 +72,7 @@ defmodule TS.Repository.Ticket.Db do
     Repo.all(from(t in {"tickets_#{date}", Ticket}, where: t.id == ^ticket_id))
     |> case do
       [] -> nil
-      any -> any
+      [any | _] -> any
     end
   end
 
@@ -128,10 +128,7 @@ defmodule TS.Repository.Ticket.Db do
 
     select_query
     |> Repo.all()
-    |> case do
-      [] -> nil
-      any -> Enum.count(any)
-    end
+    |> Enum.count(any)
   end
 
   def get_tickets_count_for_kkm_id_and_type(kkm_id, type) do
@@ -155,9 +152,6 @@ defmodule TS.Repository.Ticket.Db do
 
     select_query
     |> Repo.all()
-    |> case do
-      [] -> nil
-      any -> Enum.count(any)
-    end
+    |> Enum.count(any)
   end
 end
