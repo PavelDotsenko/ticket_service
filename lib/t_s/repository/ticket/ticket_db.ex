@@ -60,10 +60,6 @@ defmodule TS.Repository.Ticket.Db do
         order_by: [desc: t.number]
       )
     )
-    |> case do
-      [] -> []
-      any -> any
-    end
   end
 
   def get_ticket_by_ticket_id_and_open_date(ticket_id, date_time) do
@@ -128,7 +124,7 @@ defmodule TS.Repository.Ticket.Db do
 
     select_query
     |> Repo.all()
-    |> Enum.count(any)
+    |> Enum.count()
   end
 
   def get_tickets_count_for_kkm_id_and_type(kkm_id, type) do
@@ -152,6 +148,6 @@ defmodule TS.Repository.Ticket.Db do
 
     select_query
     |> Repo.all()
-    |> Enum.count(any)
+    |> Enum.count()
   end
 end
