@@ -124,7 +124,6 @@ defmodule TS.Repository.Ticket.Db do
 
     select_query
     |> Repo.all()
-    |> Enum.count()
   end
 
   def get_tickets_count_for_kkm_id_and_type(kkm_id, type) do
