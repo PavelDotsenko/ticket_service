@@ -108,7 +108,7 @@ defmodule TS.Repository.Ticket.Db do
     |> Repo.one()
   end
 
-  def get_tickets_count_for_kkm_id(kkm_id) do
+  def get_tickets_for_kkm_id(kkm_id) do
     local_now = NaiveDateTime.local_now()
 
     dates_range = TableChecker.all_table_dates(local_now, "tickets_", @schema_text)
