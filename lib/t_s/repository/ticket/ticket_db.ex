@@ -108,7 +108,7 @@ defmodule TS.Repository.Ticket.Db do
     |> Repo.one()
   end
 
-  def get_tickets_for_kkm_id(kkm_id) do
+  def get_tickets_for_kkm_id(kkm_id, start_date, end_date) do
     local_now = NaiveDateTime.local_now()
 
     dates_range = TableChecker.all_table_dates(local_now, "tickets_", @schema_text)
@@ -116,10 +116,10 @@ defmodule TS.Repository.Ticket.Db do
     select_query =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
-          from(t in {"tickets_#{date}", Ticket}, where: t.kkm_id == ^kkm_id)
+          from(t in {"tickets_#{date}", Ticket}, where: t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and fragment("date_time < ?", ^end_date))
 
         date, acc ->
-          from(t in {"tickets_#{date}", Ticket}, where: t.kkm_id == ^kkm_id, union_all: ^acc)
+          from(t in {"tickets_#{date}", Ticket}, where: t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and fragment("date_time < ?", ^end_date), union_all: ^acc)
       end)
 
     select_query
