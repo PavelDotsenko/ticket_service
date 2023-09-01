@@ -47,6 +47,8 @@ defmodule TS.Repository.MoneyPlacement.Db do
   def get_money_placements_for_shift_id_and_open_date(shift_id, date_time) do
     date = Calendar.strftime(date_time, "20%y_%m")
 
+    TableChecker.check("money_#{date}", @schema_text)
+
     Repo.all(
       from(m in {"money_#{date}", MoneyPlacement},
         where: m.shift_id == ^shift_id,
