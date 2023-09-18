@@ -64,6 +64,34 @@ defmodule TS.Repository.Ticket.Db do
     )
   end
 
+  def get_tickets_for_open_date(date_time) do
+    date = Calendar.strftime(date_time, "20%y_%m")
+
+    TableChecker.check("tickets_#{date}", @schema_text)
+
+    Repo.all(from(t in {"tickets_#{date}", Ticket}))
+  end
+
+  def get_tickets_by_tables() do
+    local_now = NaiveDateTime.local_now()
+
+    dates_range = TableChecker.all_table_dates(local_now, "tickets_", @schema_text)
+
+    select_query =
+      Enum.reduce(dates_range, nil, fn
+        date, nil ->
+          from(t in {"tickets_#{date}", Ticket})
+
+        date, acc ->
+          from(t in {"tickets_#{date}", Ticket},
+            union_all: ^acc
+          )
+      end)
+
+    select_query
+    |> Repo.all()
+  end
+
   def get_ticket_by_ticket_id_and_open_date(ticket_id, date_time) do
     date = Calendar.strftime(date_time, "20%y_%m")
 
@@ -87,7 +115,7 @@ defmodule TS.Repository.Ticket.Db do
   def get_ticket_by_fiscal_mark_and_ticket_date_and_kkm_id!(fiscal_mark, date_in, kkm_id) do
     dates_range = TableChecker.new_table_dates(date_in, "tickets_")
 
-    if(dates_range == [], do: throw {:error, "date outside range of database tables"})
+    if(dates_range == [], do: throw({:error, "date outside range of database tables"}))
 
     select_query =
       Enum.reduce(dates_range, nil, fn
@@ -120,10 +148,19 @@ defmodule TS.Repository.Ticket.Db do
     select_query =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
-          from(t in {"tickets_#{date}", Ticket}, where: t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and fragment("date_time < ?", ^end_date))
+          from(t in {"tickets_#{date}", Ticket},
+            where:
+              t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and
+                fragment("date_time < ?", ^end_date)
+          )
 
         date, acc ->
-          from(t in {"tickets_#{date}", Ticket}, where: t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and fragment("date_time < ?", ^end_date), union_all: ^acc)
+          from(t in {"tickets_#{date}", Ticket},
+            where:
+              t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and
+                fragment("date_time < ?", ^end_date),
+            union_all: ^acc
+          )
       end)
 
     select_query
