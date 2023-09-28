@@ -77,12 +77,15 @@ defmodule TS.Repository.Shift.Db do
     |> limit(1)
     |> Repo.one()
     |> case do
-      nil -> nil
-      shift -> Map.put(shift, :__meta__, %Metadata{
-        state: :loaded,
-        source: "shifts_#{shift.open_time |> Calendar.strftime("20%y_%m")}",
-        context: nil
-      })
+      nil ->
+        nil
+
+      shift ->
+        Map.put(shift, :__meta__, %Metadata{
+          state: :loaded,
+          source: "shifts_#{shift.open_time |> Calendar.strftime("20%y_%m")}",
+          context: nil
+        })
     end
   end
 
@@ -92,7 +95,7 @@ defmodule TS.Repository.Shift.Db do
     Repo.one(from(s in {"shifts_#{date}", Shift}, where: s.id == ^shift_id))
   end
 
-  def get_all_shift_for_cashbox_id(cashbox_id) do
+  def get_all_shift_for_cashbox_id(cashbox_id, start_date, end_date) do
     local_now = NaiveDateTime.local_now()
 
     dates_range = TableChecker.all_table_dates(local_now, "shifts_", @schema_text)
@@ -100,10 +103,19 @@ defmodule TS.Repository.Shift.Db do
     select_query =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
-          from(s in {"shifts_#{date}", Shift}, where: s.cashbox_id == ^cashbox_id)
+          from(s in {"shifts_#{date}", Shift},
+            where:
+              s.cashbox_id == ^cashbox_id and fragment("open_time > ?", ^start_date) and
+                fragment("open_time < ?", ^end_date)
+          )
 
         date, acc ->
-          from(s in {"shifts_#{date}", Shift}, where: s.cashbox_id == ^cashbox_id, union_all: ^acc)
+          from(s in {"shifts_#{date}", Shift},
+            where:
+              s.cashbox_id == ^cashbox_id and fragment("open_time > ?", ^start_date) and
+                fragment("open_time < ?", ^end_date),
+            union_all: ^acc
+          )
       end)
 
     select_query
