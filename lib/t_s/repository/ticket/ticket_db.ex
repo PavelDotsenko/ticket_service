@@ -18,7 +18,8 @@ defmodule TS.Repository.Ticket.Db do
         total,
         operation,
         ticket,
-        encoded
+        encoded,
+        request_id \\ nil
       ) do
     date = Calendar.strftime(shift_date_time, "20%y_%m")
 
@@ -43,7 +44,8 @@ defmodule TS.Repository.Ticket.Db do
     })
     |> Repo.insert()
     |> case do
-      {:ok, _} ->
+      {:ok, ticket} ->
+        TS.Repository.RequestLog.save(request_id, "tickets_#{date}", ticket.id)
         :ok
 
       any ->
