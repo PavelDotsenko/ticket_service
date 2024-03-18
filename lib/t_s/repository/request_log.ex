@@ -5,8 +5,7 @@ defmodule TS.Repository.RequestLog do
   import Ecto.Changeset
   import Ecto.Query
 
-  alias TS.Repository.{MoneyPlacement, Ticket, Shift}
-  alias Helper.ChangesetHelper
+  alias TS.Repository.Ticket
   alias TS.Repo
 
   schema "request_logs" do
