@@ -70,8 +70,10 @@ defmodule TS.Repository.Ticket.Db do
     date = Calendar.strftime(date_time, "20%y_%m")
 
     TableChecker.check("tickets_#{date}", @schema_text)
-
-    Repo.all(from(t in {"tickets_#{date}", Ticket}))
+    
+    from(t in {"tickets_#{date}", Ticket})
+    |> order_by({:desc, :date_time})
+    |> Repo.all()
   end
 
   def get_tickets_by_tables() do
@@ -91,6 +93,7 @@ defmodule TS.Repository.Ticket.Db do
       end)
 
     select_query
+    |> order_by({:desc, :date_time})
     |> Repo.all()
   end
 
@@ -166,6 +169,7 @@ defmodule TS.Repository.Ticket.Db do
       end)
 
     select_query
+    |> order_by({:desc, :date_time})
     |> Repo.all()
   end
 
