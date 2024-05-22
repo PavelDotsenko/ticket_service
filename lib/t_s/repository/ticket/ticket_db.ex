@@ -87,7 +87,7 @@ defmodule TS.Repository.Ticket.Db do
 
         date, acc ->
           from(t in {"tickets_#{date}", Ticket},
-            union_all: ^acc, order_by: [desc: t.date_time]
+            union_all: ^acc
           )
       end)
 
@@ -162,7 +162,7 @@ defmodule TS.Repository.Ticket.Db do
             where:
               t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and
                 fragment("date_time < ?", ^end_date),
-            union_all: ^acc, order_by: [desc: t.date_time]
+            union_all: ^acc
           )
       end)
 
