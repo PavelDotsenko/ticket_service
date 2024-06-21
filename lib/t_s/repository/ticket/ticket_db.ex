@@ -70,9 +70,8 @@ defmodule TS.Repository.Ticket.Db do
     date = Calendar.strftime(date_time, "20%y_%m")
 
     TableChecker.check("tickets_#{date}", @schema_text)
-    
-    from(t in {"tickets_#{date}", Ticket}, order_by: [desc: t.date_time])
-    |> Repo.all()
+
+    Repo.all(from(t in {"tickets_#{date}", Ticket}))
   end
 
   def get_tickets_by_tables() do
@@ -83,7 +82,7 @@ defmodule TS.Repository.Ticket.Db do
     select_query =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
-          from(t in {"tickets_#{date}", Ticket}, order_by: [desc: t.date_time])
+          from(t in {"tickets_#{date}", Ticket})
 
         date, acc ->
           from(t in {"tickets_#{date}", Ticket},
@@ -143,7 +142,7 @@ defmodule TS.Repository.Ticket.Db do
     |> Repo.one()
   end
 
-  def get_tickets_for_kkm_id(kkm_id, start_date, end_date) do
+  def get_tickets_for_kkm_id(kkm_id, start_date, end_date, limit \\ 500, offset \\ 0) do
     local_now = NaiveDateTime.local_now()
 
     dates_range = TableChecker.all_table_dates(local_now, "tickets_", @schema_text)
@@ -152,13 +151,15 @@ defmodule TS.Repository.Ticket.Db do
       Enum.reduce(dates_range, nil, fn
         date, nil ->
           from(t in {"tickets_#{date}", Ticket},
+            order_by: [desc: t.date_time_in],
             where:
               t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and
-                fragment("date_time < ?", ^end_date), order_by: [desc: t.date_time]
+                fragment("date_time < ?", ^end_date)
           )
 
         date, acc ->
           from(t in {"tickets_#{date}", Ticket},
+            order_by: [desc: t.date_time_in],
             where:
               t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and
                 fragment("date_time < ?", ^end_date),
@@ -167,6 +168,8 @@ defmodule TS.Repository.Ticket.Db do
       end)
 
     select_query
+    |> limit(limit)
+    |> offset(offset)
     |> Repo.all()
   end
 
