@@ -168,8 +168,8 @@ defmodule TS.Repository.Ticket.Db do
       end)
 
     select_query
-    |> limit(limit)
-    |> offset(offset)
+    |> limit(^limit)
+    |> offset(^offset)
     |> Repo.all()
   end
 
