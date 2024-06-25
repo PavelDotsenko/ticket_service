@@ -71,7 +71,8 @@ defmodule TS.Repository.Ticket.Db do
 
     TableChecker.check("tickets_#{date}", @schema_text)
 
-    Repo.all(from(t in {"tickets_#{date}", Ticket}))
+    from(t in {"tickets_#{date}", Ticket}, order_by: [desc: t.date_time])
+    |> Repo.all()
   end
 
   def get_tickets_by_tables() do
@@ -82,7 +83,7 @@ defmodule TS.Repository.Ticket.Db do
     select_query =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
-          from(t in {"tickets_#{date}", Ticket})
+          from(t in {"tickets_#{date}", Ticket}, order_by: [desc: t.date_time])
 
         date, acc ->
           from(t in {"tickets_#{date}", Ticket},
@@ -151,15 +152,13 @@ defmodule TS.Repository.Ticket.Db do
       Enum.reduce(dates_range, nil, fn
         date, nil ->
           from(t in {"tickets_#{date}", Ticket},
-            order_by: [desc: t.date_time_in],
             where:
               t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and
-                fragment("date_time < ?", ^end_date)
+                fragment("date_time < ?", ^end_date), order_by: [desc: t.date_time]
           )
 
         date, acc ->
           from(t in {"tickets_#{date}", Ticket},
-            order_by: [desc: t.date_time_in],
             where:
               t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and
                 fragment("date_time < ?", ^end_date),
