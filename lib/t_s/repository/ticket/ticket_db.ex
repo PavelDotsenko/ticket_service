@@ -62,8 +62,8 @@ defmodule TS.Repository.Ticket.Db do
       from(t in {"tickets_#{date}", Ticket},
         where: t.shift_id == ^shift_id,
         order_by: [desc: t.number],
-        limit: limit,
-        offset: offset
+        limit: ^limit,
+        offset: ^offset
       )
     )
   end
