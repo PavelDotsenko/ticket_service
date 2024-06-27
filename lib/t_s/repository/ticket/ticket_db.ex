@@ -53,7 +53,7 @@ defmodule TS.Repository.Ticket.Db do
     end
   end
 
-  def get_tickets_for_shift_id_and_open_date(shift_id, date_time) do
+  def get_tickets_for_shift_id_and_open_date(shift_id, date_time, limit \\ 500, offset \\ 0) do
     date = Calendar.strftime(date_time, "20%y_%m")
 
     TableChecker.check("tickets_#{date}", @schema_text)
@@ -61,7 +61,9 @@ defmodule TS.Repository.Ticket.Db do
     Repo.all(
       from(t in {"tickets_#{date}", Ticket},
         where: t.shift_id == ^shift_id,
-        order_by: [desc: t.number]
+        order_by: [desc: t.number],
+        limit: limit,
+        offset: offset
       )
     )
   end
@@ -154,7 +156,8 @@ defmodule TS.Repository.Ticket.Db do
           from(t in {"tickets_#{date}", Ticket},
             where:
               t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and
-                fragment("date_time < ?", ^end_date), order_by: [desc: t.date_time]
+                fragment("date_time < ?", ^end_date),
+            order_by: [desc: t.date_time_in]
           )
 
         date, acc ->
@@ -167,6 +170,7 @@ defmodule TS.Repository.Ticket.Db do
       end)
 
     select_query
+    # ApiCore.Services.TicketService.get_for_cashbox(%{"start_date" => "2024-01-01T12:12:12", "end_date" => "2024-07-01T12:12:12", "limit" => "2", "offset" => "2"}, 25)
     |> limit(^limit)
     |> offset(^offset)
     |> Repo.all()
