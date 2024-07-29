@@ -68,6 +68,21 @@ defmodule TS.Repository.Ticket.Db do
     )
   end
 
+  def get_tickets_for_kkm_id_shift_id_and_open_date(kkm_id, shift_id, date_time, limit \\ 500, offset \\ 0) do
+    date = Calendar.strftime(date_time, "20%y_%m")
+
+    TableChecker.check("tickets_#{date}", @schema_text)
+
+    Repo.all(
+      from(t in {"tickets_#{date}", Ticket},
+        where: t.shift_id == ^shift_id and t.kkm_id == ^kkm_id,
+        order_by: [desc: t.number],
+        limit: ^limit,
+        offset: ^offset
+      )
+    )
+  end
+
   def get_tickets_for_open_date(date_time) do
     date = Calendar.strftime(date_time, "20%y_%m")
 
