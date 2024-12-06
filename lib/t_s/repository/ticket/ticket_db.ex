@@ -165,6 +165,15 @@ defmodule TS.Repository.Ticket.Db do
 
     dates_range = TableChecker.all_table_dates(local_now, "tickets_", @schema_text)
 
+    filter_start = Date.new!(start_date.year, start_date.month, 1)
+    filter_end = Date.new!(end_date.year, end_date.month, 25)
+
+    dates_range = Enum.filter(dates_range, fn date ->
+      [year, month] = String.split(date, "_")
+      date = Date.from_iso8601!("#{year}-#{month}-15")
+      Date.compare(date, filter_start) == :gt and Date.compare(date, filter_end) == :lt
+    end)
+
     select_query =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
