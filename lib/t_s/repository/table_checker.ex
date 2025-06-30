@@ -20,18 +20,18 @@ defmodule TS.Repository.TableChecker do
     end
   end
 
-  def all_table_dates(start_date, table_prefix, schema_text, table_list \\ [], not_repeat \\ true)
+  def all_table_dates(start_date, table_prefix, schema_text, table_list \\ [], repeat_for \\ 7)
 
-  def all_table_dates(start_date, table_prefix, schema_text, table_list, true) do
+  def all_table_dates(start_date, table_prefix, schema_text, table_list, 7) do
     date_now = Calendar.strftime(start_date, "20%y_%m")
     check(table_prefix <> date_now, schema_text)
-    all_table_dates(NaiveDateTime.new!(year_handler(start_date.year, start_date.month, 1), month_handler(start_date.month, 1), 15, 12, 12, 12), table_prefix, schema_text, [date_now | table_list], false)
+    all_table_dates(NaiveDateTime.new!(year_handler(start_date.year, start_date.month, 1), month_handler(start_date.month, 1), 15, 12, 12, 12), table_prefix, schema_text, [date_now | table_list], 6)
   end
 
-  def all_table_dates(start_date, table_prefix, _schema_text, table_list, false) do
+  def all_table_dates(start_date, table_prefix, _schema_text, table_list, repeat_for) do
     date_now = Calendar.strftime(start_date, "20%y_%m")
-    if Ecto.Adapters.SQL.table_exists?(TS.Repo, table_prefix <> date_now) do
-      all_table_dates(NaiveDateTime.new!(year_handler(start_date.year, start_date.month, 1), month_handler(start_date.month, 1), 15, 12, 12, 12), table_prefix, nil, [date_now | table_list], false)
+    if Ecto.Adapters.SQL.table_exists?(TS.Repo, table_prefix <> date_now) and repeat_for > 0 do
+      all_table_dates(NaiveDateTime.new!(year_handler(start_date.year, start_date.month, 1), month_handler(start_date.month, 1), 15, 12, 12, 12), table_prefix, nil, [date_now | table_list], repeat_for - 1)
     else
       table_list
     end
