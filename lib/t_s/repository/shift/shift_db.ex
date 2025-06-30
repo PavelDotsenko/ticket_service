@@ -98,7 +98,7 @@ defmodule TS.Repository.Shift.Db do
   def get_all_shift_for_cashbox_id(cashbox_id, start_date, end_date) do
     local_now = NaiveDateTime.local_now()
 
-    dates_range = TableChecker.all_table_dates(local_now, "shifts_", @schema_text)
+    dates_range = TableChecker.all_table_dates(local_now, "shifts_", @schema_text, [], 99)
 
     select_query =
       Enum.reduce(dates_range, nil, fn
