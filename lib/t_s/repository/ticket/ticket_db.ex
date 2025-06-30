@@ -179,16 +179,16 @@ defmodule TS.Repository.Ticket.Db do
         date, nil ->
           from(t in {"tickets_#{date}", Ticket},
             where:
-              t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and
-                fragment("date_time < ?", ^end_date),
+              t.kkm_id == ^kkm_id and fragment("date_time_in > ?", ^start_date) and
+                fragment("date_time_in < ?", ^end_date),
             order_by: [desc: t.date_time_in]
           )
 
         date, acc ->
           from(t in {"tickets_#{date}", Ticket},
             where:
-              t.kkm_id == ^kkm_id and fragment("date_time > ?", ^start_date) and
-                fragment("date_time < ?", ^end_date),
+              t.kkm_id == ^kkm_id and fragment("date_time_in > ?", ^start_date) and
+                fragment("date_time_in < ?", ^end_date),
             union_all: ^acc
           )
       end)
