@@ -163,7 +163,7 @@ defmodule TS.Repository.Ticket.Db do
   def get_tickets_for_kkm_id(kkm_id, start_date, end_date, limit \\ 500, offset \\ 0) do
     local_now = NaiveDateTime.local_now()
 
-    dates_range = TableChecker.all_table_dates(local_now, "tickets_", @schema_text)
+    dates_range = TableChecker.all_table_dates(local_now, "tickets_", @schema_text, [], 50)
 
     filter_start = Date.new!(start_date.year, start_date.month, 1)
     filter_end = Date.new!(end_date.year, end_date.month, 25)
