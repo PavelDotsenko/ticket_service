@@ -66,15 +66,9 @@ defmodule TS.Repository.Shift.Db do
     select_query =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
-          c_date= Calendar.strftime(date, "20%y_%m")
-          TableChecker.check("shifts_#{c_date}", @schema_text)
-
           from(s in {"shifts_#{date}", Shift}, where: s.cashbox_id == ^cashbox_id)
 
         date, acc ->
-          c_date= Calendar.strftime(date, "20%y_%m")
-          TableChecker.check("shifts_#{c_date}", @schema_text)
-
           from(s in {"shifts_#{date}", Shift}, where: s.cashbox_id == ^cashbox_id, union_all: ^acc)
       end)
 
@@ -97,7 +91,6 @@ defmodule TS.Repository.Shift.Db do
 
   def get_shift_by_id_and_date(shift_id, date_time) do
     date = Calendar.strftime(date_time, "20%y_%m")
-    TableChecker.check("shifts_#{date}", @schema_text)
 
     Repo.one(from(s in {"shifts_#{date}", Shift}, where: s.id == ^shift_id))
   end
@@ -110,9 +103,6 @@ defmodule TS.Repository.Shift.Db do
     select_query =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
-          c_date= Calendar.strftime(date, "20%y_%m")
-          TableChecker.check("shifts_#{c_date}", @schema_text)
-
           from(s in {"shifts_#{date}", Shift},
             where:
               s.cashbox_id == ^cashbox_id and fragment("open_time > ?", ^start_date) and
@@ -120,9 +110,6 @@ defmodule TS.Repository.Shift.Db do
           )
 
         date, acc ->
-          c_date= Calendar.strftime(date, "20%y_%m")
-          TableChecker.check("shifts_#{c_date}", @schema_text)
-
           from(s in {"shifts_#{date}", Shift},
             where:
               s.cashbox_id == ^cashbox_id and fragment("open_time > ?", ^start_date) and
