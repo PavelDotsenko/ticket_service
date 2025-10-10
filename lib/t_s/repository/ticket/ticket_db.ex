@@ -100,15 +100,9 @@ defmodule TS.Repository.Ticket.Db do
     select_query =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
-          c_date = Calendar.strftime(date, "20%y_%m")
-          TableChecker.check("tickets_#{c_date}", @schema_text)
-
           from(t in {"tickets_#{date}", Ticket}, order_by: [desc: t.date_time])
 
         date, acc ->
-          c_date = Calendar.strftime(date, "20%y_%m")
-          TableChecker.check("tickets_#{c_date}", @schema_text)
-
           from(t in {"tickets_#{date}", Ticket},
             union_all: ^acc
           )
@@ -146,9 +140,6 @@ defmodule TS.Repository.Ticket.Db do
     select_query =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
-          c_date = Calendar.strftime(date, "20%y_%m")
-          TableChecker.check("tickets_#{c_date}", @schema_text)
-
           from(t in {"tickets_#{date}", Ticket},
             where:
               t.fiscal_mark == ^fiscal_mark and t.kkm_id == ^kkm_id and
@@ -156,9 +147,6 @@ defmodule TS.Repository.Ticket.Db do
           )
 
         date, acc ->
-          c_date = Calendar.strftime(date, "20%y_%m")
-          TableChecker.check("tickets_#{c_date}", @schema_text)
-
           from(t in {"tickets_#{date}", Ticket},
             where:
               t.fiscal_mark == ^fiscal_mark and t.kkm_id == ^kkm_id and
@@ -189,9 +177,6 @@ defmodule TS.Repository.Ticket.Db do
     select_query =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
-          c_date = Calendar.strftime(date, "20%y_%m")
-          TableChecker.check("tickets_#{c_date}", @schema_text)
-
           from(t in {"tickets_#{date}", Ticket},
             where:
               t.kkm_id == ^kkm_id and fragment("date_time_in > ?", ^start_date) and
@@ -200,9 +185,6 @@ defmodule TS.Repository.Ticket.Db do
           )
 
         date, acc ->
-          c_date = Calendar.strftime(date, "20%y_%m")
-          TableChecker.check("tickets_#{c_date}", @schema_text)
-
           from(t in {"tickets_#{date}", Ticket},
             where:
               t.kkm_id == ^kkm_id and fragment("date_time_in > ?", ^start_date) and
@@ -226,17 +208,11 @@ defmodule TS.Repository.Ticket.Db do
     select_query =
       Enum.reduce(dates_range, nil, fn
         date, nil ->
-          c_date = Calendar.strftime(date, "20%y_%m")
-          TableChecker.check("tickets_#{c_date}", @schema_text)
-
           from(t in {"tickets_#{date}", Ticket},
             where: t.kkm_id == ^kkm_id and t.type == ^to_string(type)
           )
 
         date, acc ->
-          c_date = Calendar.strftime(date, "20%y_%m")
-          TableChecker.check("tickets_#{c_date}", @schema_text)
-
           from(t in {"tickets_#{date}", Ticket},
             where: t.kkm_id == ^kkm_id and t.type == ^to_string(type),
             union_all: ^acc
